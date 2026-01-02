@@ -17,7 +17,7 @@ local Players: Players = cloneref(game:GetService("Players"))
 local LocalPlayer: Player = Players.LocalPlayer
 local Camera: Camera = workspace.CurrentCamera
 
-local BaseGit: string = "https://github.com/null-wtf/NewNight"
+local BaseGit: string = "https://github.com/sstvskids/NewNightForSolara"
 local NightInit: {[any]: any} = getgenv().NightInit or {}
 local Night = {
     Version = "3.07",
@@ -140,7 +140,7 @@ writefile("NewNight/Assets/UpdatedIcons.txt", "")
 if Night.Dev then
     loadstring(readfile("NewNight/Library/Main.luau"))()
 else
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/null-wtf/NewNight/refs/heads/main/Library/Main.luau"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/sstvskids/NewNightForSolara/refs/heads/main/Library/Main.luau"))()
 end
 
 if not Night.Assets or Night.Assets and (not Night.Assets.Connections or not Night.Assets.Functions) then
@@ -176,7 +176,7 @@ if queue_on_teleport then
                 if NightInit.Dev and isfile("NewNight/Loader.luau") then
                     loadstring(readfile("NewNight/Loader.luau"))()
                 else
-                    loadstring(game:HttpGet("https://raw.githubusercontent.com/null-wtf/NewNight/refs/heads/main/Loader.luau"))()
+                    loadstring(game:HttpGet("https://raw.githubusercontent.com/sstvskids/NewNightForSolara/refs/heads/main/Loader.luau"))()
                 end
             ]])
         end
