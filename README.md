@@ -5,12 +5,12 @@
 # Loadstring
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/null-wtf/NewNight/refs/heads/main/Loader.luau"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/sstvskids/NewNightForSolara/refs/heads/main/Loader.luau"))()
 ```
 
 # Night V3
 
-This project aims to provide a single script for all your needs.
+This project aims to provide a single script for all your needs, supporting Solara
 
 > [!WARNING]
 > As stated in the LICENSE:
