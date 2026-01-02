@@ -26,7 +26,30 @@ repeat task.wait() until Knit and Knit.Controllers and debug.getupvalue(Knit.Sta
 local BlockEngine = require(ReplicatedStorage.rbxts_include.node_modules["@easy-games"]["block-engine"].out)
 local GameData = {
     Utils = {
-        Remotes = require(ReplicatedStorage.TS.remotes).default.Client,
+        Remotes = {
+            EntityDeathEvent = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.EntityDeathEvent,
+            BedwarsBedBreak = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.BedwarsBedBreak,
+            MatchEndEvent = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.MatchEndEvent,
+            AFKInfo = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.AFKInfo,
+            SetInvItem = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.SetInvItem,
+            SwordHit = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.SwordHit,
+            ConsumeItem = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.ConsumeItem,
+            Inventory = {
+                SetObservedChest = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged["Inventory/SetObservedChest"],
+                ChestGetItem = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged["Inventory/ChestGetItem"]
+            },
+            ProjectileFire = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.ProjectileFire,
+            BedwarsPurchaseItem = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.BedwarsPurchaseItem,
+            PickupItemDrop = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.PickupItemDrop,
+            ConsumeTreeOrb = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.ConsumeTreeOrb,
+            CollectCollectableEntity = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.CollectCollectableEntity,
+            PickUpBee = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.PickUpBee,
+            SummonerClawAttackRequest = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.SummonerClawAttackRequest,
+            ConsumeGrimReaperSoul = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.ConsumeGrimReaperSoul,
+            DropItem = ReplicatedStorage.node_modules["@rbxts"].net.out._NetManaged.DropItem,
+            InflateBallon = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.InflateBalloon,
+            StepOnSnapTrap = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.StepOnSnapTrap
+        },
         Network = require(LocalPlayer.PlayerScripts.TS.lib.network),
         DamageTypes = require(ReplicatedStorage.TS.damage["damage-type"]).DamageType,
         ItemMeta = require(ReplicatedStorage.TS.item["item-meta"]).items,
@@ -41,7 +64,25 @@ local GameData = {
         BlockRemotes = BlockEngine.BlockEngineRemotes.Client,
         BlockBreaker = Knit.Controllers.BlockBreakController.blockBreaker,
         TeamController = Knit.Controllers.TeamController,
-        Sprint = Knit.Controllers.SprintController,
+        Sprint = {
+            sprinting = LocalPlayer:GetAttribute('Sprinting'),
+            isSprinting = function(self)
+                return self.sprinting
+            end,
+            startSprinting = function(self)
+                local freecam = workspace:GetAttribute('FreecamEnabled')
+                if freecam ~= 0 and (freecam == freecam and (freecam ~= '')) then return end
+
+                LocalPlayer:SetAttribute('Sprinting', true)
+                LocalPlayer.Character.Humanoid.WalkSpeed = LocalPlayer.Character.Humanoid.WalkSpeed >= 20 and math.min(LocalPlayer.Character.Humanoid.WalkSpeed, 20) or 20
+
+                return
+            end,
+            stopSprinting = function(self)
+                LocalPlayer:SetAttribute('Sprinting', false)
+                LocalPlayer.Character.Humanoid.WalkSpeed = 14
+            end
+        },
         Knockback = require(ReplicatedStorage.TS.damage["knockback-util"]).KnockbackUtil,
         Chest = Knit.Controllers.ChestController,
         App = Flamework.resolveDependency("@easy-games/game-core:client/controllers/app-controller@AppController"),
@@ -58,12 +99,8 @@ local GameData = {
         BlockClient = require(LocalPlayer.PlayerScripts.TS.lib["block-engine"]["client-block-engine"]).ClientBlockEngine,
         QueueController = Knit.Controllers.QueueController,
         ClawHandController = Knit.Controllers.SummonerClawHandController,
-        DaoController = Knit.Controllers.DaoController,
-        SwordController = Knit.Controllers.SwordController,
-        PlaceController = Knit.Controllers.BlockPlacementController,
         SummonerKitBalance = require(ReplicatedStorage.TS.games.bedwars.kit.kits.summoner["summoner-kit-balance"]).SummonerKitBalance,
         AbilityController = Flamework.resolveDependency("@easy-games/game-core:client/controllers/ability/ability-controller@AbilityController"),
-        UILayer = require(ReplicatedStorage.rbxts_include.node_modules["@easy-games"]["game-core"].out).UILayers,
         MatchHistroyApp = require(LocalPlayer.PlayerScripts.TS.controllers.global["match-history"].ui["match-history-moderation-app"]).MatchHistoryModerationApp,
         MatchHistroyController = Knit.Controllers.MatchHistoryController
     },
@@ -114,7 +151,7 @@ Assets.Connections:Add(GameData.Utils.Network.EntityDamageEventZap.On(function(.
 end))
 
 task.spawn(function()
-    Assets.Connections:Add(GameData.Utils.Remotes:Get("EntityDeathEvent"):Connect(function(Data)
+    Assets.Connections:Add(GameData.Utils.Remotes.EntityDeathEvent.OnClientEvent:Connect(function(Data)
         GameData.Events.Death:Fire({
             RespawnTime = Data.respawnDuration,
             Type = {Value = GameData.Utils.DamageTypes[Data.damageType], Number = Data.damageType},
@@ -125,7 +162,7 @@ task.spawn(function()
         })
     end))
 
-    Assets.Connections:Add(GameData.Utils.Remotes:Get("BedwarsBedBreak"):Connect(function(Data)
+    Assets.Connections:Add(GameData.Utils.Remotes.BedwarsBedBreak.OnClientEvent:Connect(function(Data)
         if Data.player == LocalPlayer then
             GameData.Events.BedBreak:Fire({
                 BedBlockPos = Data.bedBlockPosition,
@@ -135,9 +172,9 @@ task.spawn(function()
         end
     end))
 
-    Assets.Connections:Add(GameData.Utils.Remotes:Get("MatchEndEvent"):Connect(function(Data)
+    Assets.Connections:Add(GameData.Utils.Remotes.MatchEndEvent.OnClientEvent:Connect(function(Data)
         if Windows.Utility.Modules.AntiAFK and Windows.Utility.Modules.AntiAFK.Enabled then
-            GameData.Utils.Remotes:Get("AfkInfo"):SendToServer({
+            GameData.Utils.Remotes.AFKInfo:FireServer({
                 afk = false
             })
         end
@@ -265,7 +302,7 @@ local function GetNextSword()
 end
 
 local function GetCurrentArmor(): string
-    for i,v in GetInventory().armor do 
+    for i,v in GetInventory().armor do
         if typeof(v) == "table" then
             local Type: string = v.itemType
             if Type:find("_") then
@@ -407,16 +444,18 @@ local function SwitchItem(Item: Instance)
 
     -- if not Found then
         local Completed: boolean = false
-        GameData.Utils.Remotes:Get("SetInvItem"):CallServerAsync({
+        local suc, ret = GameData.Utils.Remotes.SetInvItem:InvokeServer({
             hand = Item
-        }):andThen(function(suc: boolean)
+        })
+
+        if suc and ret ~= nil then
             Completed = true
-        end)
+        end
 
         repeat task.wait() until Completed
     -- else
     --     local CompTime: number = os.clock()
-    --     repeat 
+    --     repeat
     --         local HandItem = LocalPlayer.Character:FindFirstChild("HandInvItem")
     --         if HandItem and HandItem:IsA("ObjectValue") then
     --             HandItem = HandItem.Value
@@ -431,7 +470,7 @@ local function SwitchItem(Item: Instance)
     --             break
     --         end
 
-    --         task.wait() 
+    --         task.wait()
     --     until false or (os.clock() - CompTime) > ((Stats and (Stats.Ping:GetValue() / 1000) + 0.05) or 0.2)
 
     --     task.wait(0.001)
@@ -445,7 +484,7 @@ local function IsPathClear(target: Instance, TargetPart: Part?, Param: RaycastPa
         local Distance: number = Direction.Magnitude
         Direction = Direction.Unit * math.min(Distance, 1000)
         local Ray: RaycastResult = workspace:Raycast(Start, Direction, Param)
-        
+
         if not Ray or (Ray.Instance and (Ray.Instance:IsDescendantOf(target) or GameData.Utils.GameQuery:isQueryIgnored(Ray.Instance))) then
             return true
         end
@@ -461,7 +500,7 @@ local function IsPathClear_Position(Target: Instance, Position2: Vector3, Param:
         local Distance: number = Direction.Magnitude
         Direction = Direction.Unit * math.min(Distance, 1000)
         local Ray: RaycastResult = workspace:Raycast(Start, Direction, Param)
-        
+
         if not Ray or (Ray.Instance and (Ray.Instance:IsDescendantOf(Target) or GameData.Utils.GameQuery:isQueryIgnored(Ray.Instance))) then
             return true
         end
@@ -527,7 +566,7 @@ local function GetEntity(Data: {TeamCheck: boolean?, Mode: string?, MaxRange: nu
                         RaycastParams.FilterDescendantsInstances = CollectionService:GetTagged("entity")
                         Data.Visible.Params = RaycastParams
                     end
-                    
+
                     if not IsPathClear(v.Entity, v.Root, Data.Visible.Params) then
                         continue
                     end
@@ -635,12 +674,12 @@ local function MakeClone(): { Clone: BasePart, Destroy: () -> (), PrimaryPart: B
         LocalPlayer.Character.PrimaryPart = Clone
         for i, v in LocalPlayer.Character:GetDescendants() do
             if v:IsA("Weld") or v:IsA("Motor6D") then
-                if v.Part0 == PrimaryPart then 
-                    v.Part0 = Clone 
+                if v.Part0 == PrimaryPart then
+                    v.Part0 = Clone
                 end
 
-                if v.Part1 == PrimaryPart then 
-                    v.Part1 = Clone 
+                if v.Part1 == PrimaryPart then
+                    v.Part1 = Clone
                 end
             end
         end
@@ -652,12 +691,12 @@ local function MakeClone(): { Clone: BasePart, Destroy: () -> (), PrimaryPart: B
                 LocalPlayer.Character.PrimaryPart = PrimaryPart
                 for _, v in LocalPlayer.Character:GetDescendants() do
                     if v:IsA("Weld") or v:IsA("Motor6D") then
-                        if v.Part0 == Clone then 
-                            v.Part0 = PrimaryPart 
+                        if v.Part0 == Clone then
+                            v.Part0 = PrimaryPart
                         end
 
-                        if v.Part1 == Clone then 
-                            v.Part1 = PrimaryPart 
+                        if v.Part1 == Clone then
+                            v.Part1 = PrimaryPart
                         end
                     end
                 end
@@ -877,8 +916,8 @@ Windows.Movement.Modules.UniversalNoClip:Destroy();
                 self:Connection(GameData.Events.Damage.Event:Connect(function(Values)
                     if Values.Type.Value ~= "FALL" and Values.DamagedPlayer == LocalPlayer then
                         if SpeedData.Settings.DamageBoostCooldown < (os.clock() - SpeedData.Data.LastDamaged) then
-                            SpeedData.Data.LastDamaged = os.clock()      
-                        end                  
+                            SpeedData.Data.LastDamaged = os.clock()
+                        end
                     end
                 end))
 
@@ -923,9 +962,9 @@ Windows.Movement.Modules.UniversalNoClip:Destroy();
                                     local Multiplier: number = GetSpeedMultiplier()
                                     if Multiplier ~= 0 then
                                         NewSpeed = math.clamp(Speed * Multiplier, 0, 46)
-                                    end 
+                                    end
                                 end
-                                
+
                                 Root.CFrame += Humanoid.MoveDirection * math.clamp(Speed - 22, 0, math.huge) * delta
                                 Root.AssemblyLinearVelocity = Vector3.new(Humanoid.MoveDirection.X * NewSpeed, CurrentVelocity.Y, Humanoid.MoveDirection.Z * NewSpeed)
                                 if SpeedData.Settings.Pulse then
@@ -1032,7 +1071,7 @@ Windows.Movement.Modules.UniversalNoClip:Destroy();
             SpeedData.Settings.UseBoost = value
         end
     })
-    
+
     Speed:MiniToggle({
         Name = "Daamge Boost",
         Flag = "SpeedDamageBoost",
@@ -1044,7 +1083,7 @@ Windows.Movement.Modules.UniversalNoClip:Destroy();
             DamageBoostDelay:SetVisiblity(value)
         end
     })
-    
+
     Speed:MiniToggle({
         Name = "Auto Jump",
         Flag = "SpeedAutoJump",
@@ -1149,12 +1188,12 @@ end)();
                                     local Multiplier: number = GetSpeedMultiplier()
                                     if Multiplier ~= 0 then
                                         NewSpeed = math.clamp(Speed * Multiplier, 0, 46)
-                                    end 
+                                    end
                                 end
                             end
 
                             if Humanoid.MoveDirection.Magnitude > 0 then
-                                SpeedVelocity = Vector3.new(Humanoid.MoveDirection.X * NewSpeed, 0, Humanoid.MoveDirection.Z * NewSpeed) 
+                                SpeedVelocity = Vector3.new(Humanoid.MoveDirection.X * NewSpeed, 0, Humanoid.MoveDirection.Z * NewSpeed)
                             end
 
                             Root.CFrame += Humanoid.MoveDirection * math.clamp(Speed - 22, 0, math.huge) * delta
@@ -1184,7 +1223,7 @@ end)();
                                     break
                                 end
                             end
-                            
+
                             if FlyData.Data.FlyBar then
                                 FlyData.Data.FlyBar:Update(string.format("%.1f", (FlyData.Data.LastOnGround + 2.5) - os.clock()))
                             end
@@ -1438,7 +1477,7 @@ end)();
                         if not KillAuraData.Data.OldPlayAnimationViewModel then
                             KillAuraData.Data.OldPlayAnimationViewModel = GameData.Utils.ViewmodelController.playAnimation
                         end
-                        
+
                         GameData.Utils.ViewmodelController.playAnimation = function(self, animation: number, ...)
                             if KillAuraData.Data.AnimationPlaying then
                                 local Animation: string = GameData.Utils.AnimationType[animation]
@@ -1460,7 +1499,7 @@ end)();
                     end
 
                     local Sword = GetSword()
-                    if Sword.Item and GameData.Utils.Store:getState().Game.matchState == GameData.Utils.MatchStates.RUNNING and Night:IsAlive(LocalPlayer) then                        
+                    if Sword.Item and GameData.Utils.Store:getState().Game.matchState == GameData.Utils.MatchStates.RUNNING and Night:IsAlive(LocalPlayer) then
                         if KillAuraData.Settings.TriggerButton and not KillAuraData.Data.TriggerHeld then
                             task.wait()
                             return
@@ -1492,7 +1531,7 @@ end)();
                                     end
                                 else
                                     table.remove(GameData.Data.KillAuraTargets, i)
-                                end 
+                                end
                             else
                                 table.remove(GameData.Data.KillAuraTargets, i)
                             end
@@ -1504,7 +1543,7 @@ end)();
                         else
                             local Range: number = (KillAuraData.Settings.SwingRange > KillAuraData.Settings.Range and KillAuraData.Settings.SwingRange) or KillAuraData.Settings.Range
                             NearestEntity = GetEntity({
-                                TeamCheck = true, 
+                                TeamCheck = true,
                                 MaxRange = Range,
                                 MaxAngle = KillAuraData.Settings.MaxAngle,
                                 Mode = KillAuraData.Settings.TargetMode,
@@ -1571,7 +1610,7 @@ end)();
                                 end)()
                             end
 
-                            if KillAuraData.Settings.Particles then 
+                            if KillAuraData.Settings.Particles then
                                 coroutine.wrap(function()
                                     local Emitter: ParticleEmitter = KillAuraData.Data.Effects.Particles[NearestEntity.Entity]
                                     if not Emitter then
@@ -1595,7 +1634,7 @@ end)();
 
                             if KillAuraData.Settings.Range >= NearestEntity.Distance then
                                 local HitPos: Vector3 = (math.clamp(NearestEntity.Distance - 14.4, 10, 30) * (NearestEntity.Entity.PrimaryPart.Position - LocalPlayer.Character.PrimaryPart.Position).Unit) + LocalPlayer.Character.PrimaryPart.Position
-                                GameData.Utils.Remotes:Get("SwordHit"):SendToServer({
+                                GameData.Utils.Remotes.SwordHit:FireServer({
                                     entityInstance = NearestEntity.Entity,
                                     chargedAttack = {chargeRatio = 0},
                                     validate = {
@@ -1722,7 +1761,7 @@ end)();
             end
         }
     })
-    
+
     KillAura:Slider({
         Name = "Range",
         Flag = "KillAuraRange",
@@ -1777,8 +1816,8 @@ end)();
         CallingFunction = function(self, value: {})
             KillAuraData.Settings.Targets = value
         end
-    })  
-    
+    })
+
     KillAura:Dropdown({
         Name = "Target Mode",
         Flag = "KillAuraTargetMode",
@@ -1787,7 +1826,7 @@ end)();
         CallingFunction = function(self, value: string)
             KillAuraData.Settings.TargetMode = value
         end
-    })    
+    })
 
     KillAura:Slider({
         Name = "Delay",
@@ -2005,8 +2044,8 @@ end)();
                 end
 
                 self:Connection(RunService.PreRender:Connect(function(Delta: number)
-                    if not Night:IsAlive(LocalPlayer) then 
-                        return 
+                    if not Night:IsAlive(LocalPlayer) then
+                        return
                     end
 
                     if AimbotData.Data.Circle then
@@ -2040,12 +2079,12 @@ end)();
                                 if AimbotData.Settings.TriggerDistance and NearestToMouse.DistanceFromPlayer >= AimbotData.Settings.Distance then
                                     return
                                 end
-                                
+
                                 if AimbotData.Settings.WallCheck then
                                     AimbotData.Data.RayParams.FilterType = Enum.RaycastFilterType.Exclude
                                     AimbotData.Data.RayParams.FilterDescendantsInstances = CollectionService:GetTagged("entity")
-                                    if not IsPathClear(Target, TargetPart, AimbotData.Data.RayParams) then 
-                                        return 
+                                    if not IsPathClear(Target, TargetPart, AimbotData.Data.RayParams) then
+                                        return
                                     end
                                 end
 
@@ -2100,7 +2139,7 @@ end)();
         CallingFunction = function(self, value: {})
             AimbotData.Settings.Targets = value
         end
-    })  
+    })
 
     Aimbot:Slider({
         Name = "Aim Speed",
@@ -2256,8 +2295,8 @@ end)();
                         Night:GetTargetHud():Update({
                             Player = Target.Data.Player,
                             UserData = {
-                                Name = Target.Entity.Name, 
-                                DisplayName = Display, 
+                                Name = Target.Entity.Name,
+                                DisplayName = Display,
                                 ProfilePic = "",
                             },
                             Health = Health,
@@ -2304,7 +2343,7 @@ end)();
         CallingFunction = function(self, value: {})
             Targets = value
         end
-    })  
+    })
 
     TargetHud:MiniToggle({
         Name = "Team Check",
@@ -2327,7 +2366,7 @@ end)();
         Flag = "Nuker",
         CallingFunction = function(self, enabled: boolean)
             if enabled then
-                repeat 
+                repeat
                     if HandCheck then
                         local CurrentHand = GetInventory().hand
                         if CurrentHand and CurrentHand.tool then
@@ -2415,7 +2454,7 @@ end)();
     Windows.Movement:CreateModule({
         Name = "Sprint",
         Flag = "Sprint",
-        CallingFunction = function(self, enabled: boolean) 
+        CallingFunction = function(self, enabled: boolean)
             if enabled then
                 Old = GameData.Utils.Sprint.stopSprinting
                 GameData.Utils.Sprint.stopSprinting = function()
@@ -2443,7 +2482,7 @@ end)();
     local Knockback = Windows.Movement:CreateModule({
         Name = "Knockback",
         Flag = "KnockbackChanger",
-        CallingFunction = function(self, enabled: boolean) 
+        CallingFunction = function(self, enabled: boolean)
             if enabled then
                 OldApply = GameData.Utils.Knockback.applyKnockback
                 GameData.Utils.Knockback.applyKnockback = function(Part: BasePart, RealKnockback: number, ...)
@@ -2458,7 +2497,7 @@ end)();
             end
         end
     })
-    
+
     Knockback:Slider({
         Name = "Knockback",
         Flag = "KnockbackChangerValue",
@@ -2689,7 +2728,7 @@ end)();
     Windows.Utility:CreateModule({
         Name = "No Fall",
         Flag = "NoFall",
-        CallingFunction = function(self, enabled: boolean) 
+        CallingFunction = function(self, enabled: boolean)
             if enabled then
                 self:Connection(LocalPlayer.CharacterAdded:Connect(MakeRay))
                 if Night:IsAlive(LocalPlayer) then
@@ -2701,7 +2740,7 @@ end)();
 
                     local Char: Model = LocalPlayer.Character
                     local Root: BasePart = Char.PrimaryPart
-                    
+
                     if Root.AssemblyLinearVelocity.Y >= -80 then
                         Power = 0
                         return
@@ -2772,7 +2811,7 @@ end)();
                             end
 
                             task.wait(Delay)
-                            GameData.Utils.Remotes:Get("ConsumeItem"):CallServerAsync({
+                            GameData.Utils.Remotes.ConsumeItem:InvokeServer({
                                 item = v.tool
                             })
                         end
@@ -2835,7 +2874,7 @@ end)();
         Name = "Chest Stealer",
         Flag = "ChestStealer",
         CallingFunction = function(self, enabled: boolean)
-            if enabled then 
+            if enabled then
                 repeat
                     local Chest = GetNearestChest(Opened)
                     if Chest.Chest and Distance >= Chest.Distance and not table.find(Opened, Chest.Chest) and #Chest.ChestFolder:GetChildren() > 0 then
@@ -2847,7 +2886,7 @@ end)();
                         table.insert(Opened, InsertValue, Chest.Chest)
                         task.delay(0.5, table.remove, Opened, InsertValue)
 
-                        GameData.Utils.Remotes:GetNamespace("Inventory"):Get("SetObservedChest"):SendToServer(Chest.Chest)
+                        GameData.Utils.Remotes.Inventory.SetObservedChest:FireServer(Chest.Chest)
                         if not Chest.Chest:GetAttribute("ChestOpened") then
                             coroutine.wrap(function()
                                 GameData.Utils.Chest:playChestOpenAnimation(Chest.Chest)
@@ -2857,13 +2896,13 @@ end)();
 
                         task.delay(0.1, function()
                             for i,v in Chest.ChestFolder:GetChildren() do
-                                GameData.Utils.Remotes:GetNamespace("Inventory"):Get("ChestGetItem"):CallServerAsync(Chest.ChestFolder, v)
+                                GameData.Utils.Remotes.Inventory.ChestGetItem:InvokeServer(Chest.ChestFolder, v)
                                 if Delay ~= 0 then
                                     task.wait(Delay)
                                 end
                             end
 
-                            GameData.Utils.Remotes:GetNamespace("Inventory"):Get("SetObservedChest"):SendToServer()
+                            GameData.Utils.Remotes.Inventory.SetObservedChest:FireServer()
                         end)
                     end
                     task.wait(0.1)
@@ -2871,7 +2910,7 @@ end)();
             end
         end
     })
-    
+
     ChestStealer:Slider({
         Name = "Range",
         Flag = "ChestStealerRange",
@@ -2930,7 +2969,7 @@ end)();
             end
         end
     })
-    
+
     WallClimb:Slider({
         Name = "Speed",
         Flag = "WallClimbSpeed",
@@ -2982,7 +3021,7 @@ end)();
 
     ProjAimbotData.Data.RayParams.FilterType = Enum.RaycastFilterType.Include
     ProjAimbotData.Data.RayParams.FilterDescendantsInstances = BlockList
-    
+
     local ProjAimbot = Windows.Combat:CreateModule({
         Name = "Projectile Aimbot",
         Flag = "ProjectileAimbot",
@@ -3031,11 +3070,11 @@ end)();
                                     ProjAimbotData.Data.Target = nil
                                     return
                                 end
-                                
+
                                 if ProjAimbotData.Settings.WallCheck then
                                     if not IsPathClear(Target, TargetPart, ProjAimbotData.Data.RayParams) then
                                         ProjAimbotData.Data.Target = nil
-                                        return 
+                                        return
                                     end
                                 end
 
@@ -3060,7 +3099,7 @@ end)();
                     if not ProjAimbotData.Data.Target or not ProjAimbotData.Data.Target.PrimaryPart or not Launch then
                         return ProjAimbotData.Data.Old(proj, data, line, start, pos)
                     end
-                    
+
                     local PrimaryPart = ProjAimbotData.Data.Target.PrimaryPart
                     local Humanoid = ProjAimbotData.Data.Target:FindFirstChildOfClass("Humanoid")
                     local YLevel = Humanoid and PrimaryPart.Position.Y + Humanoid.HipHeight or PrimaryPart.Position.Y
@@ -3069,7 +3108,7 @@ end)();
                     local Vel = PrimaryPart.Velocity or Vector3.new(0, 0, 0)
                     local Meta = data:getProjectileMeta()
                     local Gravity = (Meta and Meta.gravitationalAcceleration or 0) * (data.gravityMultiplier or 1)
-                
+
                     local IsArrow = type(data.projectile) == "string" and data.projectile:find("arrow")
                     local IsOtherProj = Meta and (Meta.gravitationalAcceleration or 0) > 0
                     local Calc = nil
@@ -3088,7 +3127,7 @@ end)();
                     if not Calc then
                         Calc = PrimaryPart.Position
                     end
-                
+
                     return {
                         initialVelocity = CFrame.new(StartPos, Calc).LookVector * ((Meta and Meta.launchVelocity) or 100),
                         positionFrom = StartPos,
@@ -3127,7 +3166,7 @@ end)();
         CallingFunction = function(self, value: {})
             ProjAimbotData.Settings.Targets = value
         end
-    })  
+    })
 
     local FovColor = ProjAimbot:ColorSlider({
         Name = "FOV Color",
@@ -3268,10 +3307,10 @@ end)();
                 end
             end
         end
-        
+
         return nil
     end
-    
+
     local function GetTools()
         local Found = {}
         local Inventory = GetInventory().items
@@ -3375,7 +3414,7 @@ end)();
                                 GameData.Data.Target = Target
                                 ProjectileAura.Data.LastSetTarget = true
 
-                                
+
                                 for i = 1, #Tools do
                                     local Obj = Tools[i]
                                     local ItemType = Obj.Item.itemType
@@ -3393,7 +3432,7 @@ end)();
                                         local ProjData = GameData.Utils.ProjMeta[Obj.Proj]
                                         local LaunchVel = ProjData.launchVelocity
                                         local AimPos = Aim(Pos, LaunchVel, ProjData.gravitationalAcceleration or 196.2, Target.Entity.PrimaryPart.Position, Target.Entity.PrimaryPart.Velocity, Target.Entity.Humanoid.HipHeight)
-                                        
+
                                         if AimPos then
                                             if ProjectileAura.Settings.WallCheck and not IsPathClear_Position(Target.Entity, AimPos, ProjectileAura.Data.Params) then
                                                 task.wait()
@@ -3408,18 +3447,20 @@ end)();
                                                     GameData.Utils.Projectile:createLocalProjectile(ProjData, Obj.Ammo, Obj.Proj, CFrame.new(Pos, AimPos).Position, HttpService:GenerateGUID(true), LookVec, {drawDurationSeconds = 1})
                                                 end
 
-                                                GameData.Utils.Remotes:Get("ProjectileFire"):CallServerAsync(
+                                                local suc, res = GameData.Utils.Remotes.ProjectileFire:InvokeServer(
                                                     Obj.Item.tool, Obj.Ammo, Obj.Proj,
                                                     CFrame.new(Pos, AimPos).Position,
                                                     Pos, LookVec,
                                                     HttpService:GenerateGUID(true),
                                                     {drawDurationSec = ProjectileAura.Settings.Speed / 100, shotId = HttpService:GenerateGUID(false)},
                                                     workspace:GetServerTimeNow() - 0.01 * ((ProjectileAura.Settings.Power - 5) / 2)
-                                                ):andThen(function(Ammo: Instance)
-                                                    CheckProj(Ammo, Obj)
-                                                end)
+                                                )
+
+                                                if suc and res ~= nil then
+                                                    CheckProj(Obj.Ammo, Obj)
+                                                end
                                             end)()
-                                            
+
                                             ProjectileAura.Data.DelayProj[ItemType] = os.clock() + (Obj.Meta.fireDelaySec - 0.15)
                                             if ProjectileAura.Settings.Delay > 0 then
                                                 task.wait(ProjectileAura.Settings.Delay)
@@ -3513,7 +3554,7 @@ end)();
         CallingFunction = function(self, value: {})
             ProjectileAura.Settings.Targets = value
         end
-    })  
+    })
 
     ProjAura:Dropdown({
         Name = "Target Mode",
@@ -3523,7 +3564,7 @@ end)();
         CallingFunction = function(self, value: string)
             ProjectileAura.Settings.TargetMode = value
         end
-    })    
+    })
 
     ProjAura:MiniToggle({
         Name = "Allow KillAura",
@@ -3598,12 +3639,12 @@ end)();
                             PrimaryPart.Anchored = false
 
                             StartTime = os.clock()
-                            TempCon:Disconnect()                            
+                            TempCon:Disconnect()
                         end
                     end))
 
                     SwitchItem(FireBall.tool, true)
-                    GameData.Utils.Remotes:Get("ProjectileFire"):CallServerAsync(
+                    GameData.Utils.Remotes.ProjectileFire:InvokeServer(
                         FireBall.tool, FireBall.itemType, FireBall.itemType,
                         PrimaryPart.Position, PrimaryPart.Position, vector.create(0, -30, 0),
                         HttpService:GenerateGUID(false),
@@ -3645,9 +3686,9 @@ end)();
                             RealSpeed = CombatCheck and 0 < #GameData.Data.KillAuraTargets and (RealSpeed / 2) or RealSpeed
                             PrimaryPart.CFrame += (Humanoid.MoveDirection * (RealSpeed * delta))
 
-                            PrimaryPart.AssemblyLinearVelocity = Vector3.new(PrimaryPart.AssemblyLinearVelocity.X, Height, PrimaryPart.AssemblyLinearVelocity.Z)      
+                            PrimaryPart.AssemblyLinearVelocity = Vector3.new(PrimaryPart.AssemblyLinearVelocity.X, Height, PrimaryPart.AssemblyLinearVelocity.Z)
                         end
-                        
+
                         Boosted = not Boosted
 
                         if TimeUI then
@@ -3994,11 +4035,11 @@ end)();
                                 local Currency = GetItem(NextSword.currency)
                                 if Currency and Currency.amount >= NextSword.price and (not Purchased[NextSword.itemType] or (os.clock() - Purchased[NextSword.itemType]) > 5) then
                                     Purchased[NextSword.itemType] = os.clock()
-                                    GameData.Utils.Remotes:Get("BedwarsPurchaseItem"):CallServerAsync({
+                                    GameData.Utils.Remotes.BedwarsPurchaseItem:InvokeServer({
                                         shopItem = NextSword,
                                         shopId = ItemShop.Id
                                     })
-                                    
+
                                     task.wait(0.1 + Delay)
                                 end
                             end
@@ -4010,7 +4051,7 @@ end)();
                                 local Currency = GetItem(NextArmor.currency)
                                 if Currency and Currency.amount >= NextArmor.price and (not Purchased[NextArmor.itemType] or (os.clock() - Purchased[NextArmor.itemType]) > 5) then
                                     Purchased[NextArmor.itemType] = os.clock()
-                                    GameData.Utils.Remotes:Get("BedwarsPurchaseItem"):CallServerAsync({
+                                    GameData.Utils.Remotes.BedwarsPurchaseItem:InvokeServer({
                                         shopItem = NextArmor,
                                         shopId = ItemShop.Id
                                     })
@@ -4083,7 +4124,7 @@ end)();
                 repeat
                     local ItemDrop = GetNearestTaggedItem("ItemDrop", Collected)
                     if ItemDrop.Item and Distance >= ItemDrop.Distance then
-                        GameData.Utils.Remotes:Get("PickupItemDrop"):CallServerAsync({
+                        GameData.Utils.Remotes.PickupItemDrop:InvokeServer({
                             itemDrop = ItemDrop.Item
                         })
 
@@ -4184,7 +4225,7 @@ end)();
 
                     local Fly = Windows.Movement.Modules.Fly
                     local LongJump = Windows.Movement.Modules.LongJump
-                    
+
                     if Fly.Enabled or LongJump.Enabled then
                         task.wait()
                         continue
@@ -4197,7 +4238,7 @@ end)();
 
                         local PrimaryPart: BasePart = AntiHitData.Data.Clone.PrimaryPart
                         AntiHitData.Data.Target = NearestEntity.Entity
-                        repeat 
+                        repeat
                             local NewEntity = GetEntity({
                                 TeamCheck = true,
                                 MaxRange = AntiHitData.Settings.Distance,
@@ -4207,7 +4248,7 @@ end)();
                             if not NewEntity.Entity then
                                 break
                             end
-                            task.wait() 
+                            task.wait()
                         until AntiHitData.Data.CanTeleport or not AntiHitData.Settings.WaitUntilDamage
 
                         if self.Enabled and AntiHitData.Data.Clone and Night:IsAlive(LocalPlayer) and isnetworkowner(LocalPlayer.Character.PrimaryPart) then
@@ -4288,7 +4329,7 @@ end)();
         CallingFunction = function(self, value: {})
             AntiHitData.Settings.Targets = value
         end
-    })  
+    })
 
     local Dynamic, Up, Down
     AntiHit:MiniToggle({
@@ -4388,11 +4429,11 @@ end)();
             Active = {}
         }
     }
-    
+
     local function CheckGroup(Player, ID)
         return pcall(Player.GetRankInGroup, Player, ID)
     end
-    
+
     local function Notify(Player, Reason)
         if StaffDetectorData.Settings.Mode == "Notify" and Night then
             Warning("Staff Detector", string.format("Staff Detected: %s (%s)", Player.Name, Reason), 60)
@@ -4403,11 +4444,11 @@ end)();
                 Duration = 60
             })
         end
-        
+
         if StaffDetectorData.Settings.Party and GameData.Utils.Party then
             GameData.Utils.Party:leaveParty()
         end
-        
+
         if StaffDetectorData.Settings.Mode == "Uninject" and Assets.Functions then
             Assets.Functions:Uninject()
         end
@@ -4415,27 +4456,27 @@ end)();
 
     local function GetFriends(ID)
         if StaffDetectorData.Data.Friends[ID] then return StaffDetectorData.Data.Friends[ID] end
-        
+
         local Success, List = pcall(function()
             local Friends = {}
             local Pages = Players:GetFriendsAsync(ID)
             local PageCount = 0
-            
+
             repeat
                 local CurrentPage = Pages:GetCurrentPage()
                 for _, FriendData in next, CurrentPage do
                     Friends[FriendData.Id] = FriendData.Username
                 end
-                
+
                 PageCount += 1
                 if not Pages.IsFinished and PageCount < 12 then
                     Pages:AdvanceToNextPageAsync()
                 end
             until Pages.IsFinished or PageCount >= 12
-            
+
             return Friends
         end)
-        
+
         if Success then
             StaffDetectorData.Data.Friends[ID] = List
             return List
@@ -4443,7 +4484,7 @@ end)();
 
         return {}
     end
-    
+
     local function FindMutual(Friends)
         for ID, Name in next, Friends do
             if StaffDetectorData.Data.Players[ID] then
@@ -4452,18 +4493,18 @@ end)();
         end
         return nil
     end
-    
+
     local function CheckSpectator(player)
         if not player:GetAttribute("Spectator") or player:GetAttribute("Team") then
             return false
         end
-        
+
         if GameData.Utils.Store and GameData.Utils.Store:getState().Game.customMatch then
             return false
         end
-        
+
         local Friend: string = FindMutual(GetFriends(player.UserId))
-        
+
         if not Friend then
             Notify(player, "Suspicious spectator join pattern")
             return true
@@ -4475,16 +4516,16 @@ end)();
 
         return false
     end
-    
+
     local function GroupRankCheck(player)
         local Success, Rank = CheckGroup(player, 5774246)
         return Success and Rank >= (StaffDetectorData.Settings.YouTuber and 20 or 100)
     end
-    
+
     local function ClanCheck(player)
         local ClanTag = player:GetAttribute("ClanTag")
         if not ClanTag then return false end
-        
+
         for _, BannedClan in next, StaffDetectorData.Data.Clans do
             if ClanTag == BannedClan then
                 return true
@@ -4493,10 +4534,10 @@ end)();
 
         return false
     end
-    
+
     local function CheckPlayer(player)
         if player == LocalPlayer then return end
-        
+
         StaffDetectorData.Data.Players[player.UserId] = player.Name
         StaffDetectorData.Data.Active[player.UserId] = StaffDetectorData.Data.Active[player.UserId] or {}
 
@@ -4514,8 +4555,8 @@ end)();
         end)
 
         table.insert(StaffDetectorData.Data.Active[player.UserId], SpectatorCon)
-        if CheckSpectator(player) or not StaffDetectorData.Settings.Clan then 
-            return 
+        if CheckSpectator(player) or not StaffDetectorData.Settings.Clan then
+            return
         end
 
         local function SeeClan()
@@ -4526,7 +4567,7 @@ end)();
                 end
             end
         end
-        
+
         if player:GetAttribute("ClanTag") then
             SeeClan()
         else
@@ -4534,7 +4575,7 @@ end)();
             table.insert(StaffDetectorData.Data.Active[player.UserId], ClanCon)
         end
     end
-    
+
     local function CleanConnection(player)
         if StaffDetectorData.Data.Active[player.UserId] then
             for _, v in next, StaffDetectorData.Data.Active[player.UserId] do
@@ -4544,7 +4585,7 @@ end)();
             end
             StaffDetectorData.Data.Active[player.UserId] = nil
         end
-        
+
         StaffDetectorData.Data.Players[player.UserId] = nil
         StaffDetectorData.Data.Friends[player.UserId] = nil
     end
@@ -4557,7 +4598,7 @@ end)();
                 for _, player in next, Players:GetPlayers() do
                     task.defer(CheckPlayer, player)
                 end
-                
+
                 self:Connection(Players.PlayerAdded:Connect(CheckPlayer))
                 self:Connection(Players.PlayerRemoving:Connect(CleanConnection))
             else
@@ -4568,7 +4609,7 @@ end)();
                         end
                     end
                 end
-                
+
                 table.clear(StaffDetectorData.Data.Active)
                 table.clear(StaffDetectorData.Data.Players)
                 table.clear(StaffDetectorData.Data.Friends)
@@ -4639,7 +4680,7 @@ end)();
                 end
 
                 repeat
-                    GameData.Utils.Remotes:Get("AfkInfo"):SendToServer({
+                    GameData.Utils.Remotes.AFKInfo:FireServer({
                         afk = false
                     })
                     task.wait(3)
@@ -4664,7 +4705,7 @@ end)();
         Flag = "AutoQueue",
         CallingFunction = function(self, enabled: boolean)
             if enabled then
-                self:Connection(GameData.Events.Death.Event:Connect(function(Values)  
+                self:Connection(GameData.Events.Death.Event:Connect(function(Values)
                     if not Sent and Values.Final and Values.KilledPlayer and Values.KilledPlayer == LocalPlayer then
                         Sent = true
                         task.delay(Delay, GameData.Utils.QueueController.joinQueue, GameData.Utils.QueueController, GameData.Utils.Store:getState().Game.queueType)
@@ -4763,7 +4804,7 @@ end
                 self:Connection(Part.Touched:Connect(function(Part: Part)
                     if Night:IsAlive(LocalPlayer) and Part.Parent == LocalPlayer.Character and ((os.clock() - Debounce) >= AntiVoidData.DebounceTime or not AntiVoidData.UseDebounce) and not Bounce then
                         Bounce = true
-                        local PrimaryPart: BasePart = LocalPlayer.Character.PrimaryPart    
+                        local PrimaryPart: BasePart = LocalPlayer.Character.PrimaryPart
                         if AntiVoidData.Mode == "Launch" then
                             for i = 1, AntiVoidData.Loop do
                                 task.wait(AntiVoidData.Del / 10)
@@ -4793,7 +4834,7 @@ end
                                 TweenService:Create(PrimaryPart, TweenInfo.new(AntiVoidData.Speed), {CFrame = LastCF}):Play()
                             end
                         end
-                        Bounce = false   
+                        Bounce = false
                     end
                 end))
 
@@ -5005,7 +5046,8 @@ end)();
 
                             GameData.Utils.Animation:playAnimation(LocalPlayer, GameData.Utils.ProdAnimations[GameData.Utils.AnimationType.PUNCH])
                             GameData.Utils.ViewmodelController:playAnimation(GameData.Utils.AnimationType.FP_USE_ITEM)
-                            if GameData.Utils.Remotes:Get("ConsumeTreeOrb"):CallServer({treeOrbSecret = NearestOrb.Id}) then
+
+                            if GameData.Utils.Remotes.ConsumeTreeOrb:InvokeServer({treeOrbSecret = NearestOrb.Id}) then
                                 NearestOrb.Orb:Destroy()
                             end
                         end
@@ -5016,7 +5058,7 @@ end)();
                                 task.wait(ActivationDelay)
                             end
 
-                            GameData.Utils.Remotes:Get("CollectCollectableEntity"):SendToServer({
+                            GameData.Utils.Remotes.CollectCollectableEntity:FireServer({
                                 id = NearestStar.Id,
                                 collectableName = NearestStar.Item.Name
                             })
@@ -5029,7 +5071,7 @@ end)();
                             end
 
                             GameData.Utils.Animation:playAnimation(LocalPlayer, GameData.Utils.ProdAnimations[GameData.Utils.AnimationType.NET_CATCH])
-                            GameData.Utils.Remotes:Get("PickUpBee"):SendToServer({
+                            GameData.Utils.Remotes.PickUpBee:FireServer({
                                 beeId = NearestBee.Id
                             })
                         end
@@ -5049,7 +5091,7 @@ end)();
                                 end
 
                                 GameData.Utils.ClawHandController.lastAttackTime = workspace:GetServerTimeNow()
-                                GameData.Utils.Remotes:Get("SummonerClawAttackRequest"):SendToServer({
+                                GameData.Utils.Remotes.SummonerClawAttackRequest:FireServer({
                                     position = NearestEntity.Data.Root.Position,
                                     direction = CFrame.lookAt(NearestEntity.Data.Root.Position, CurrentCamera.CFrame.Position).LookVector,
                                     clientTime = workspace:GetServerTimeNow()
@@ -5064,7 +5106,7 @@ end)();
                             end
 
                             GameData.Utils.Animation:playAnimation(LocalPlayer, GameData.Utils.ProdAnimations[GameData.Utils.AnimationType.GRIM_REAPER_CONSUME])
-                            GameData.Utils.Remotes:Get("ConsumeGrimReaperSoul"):CallServer({
+                            GameData.Utils.Remotes.ConsumeGrimReaperSoul:InvokeServer({
                                 secret = NearestSoul.Id
                             })
                         end
@@ -5099,7 +5141,7 @@ end)();
         CallingFunction = function(self, value: {})
             Targets = value
         end
-    })  
+    })
 
     SwitchItemToggle = AutoKit:MiniToggle({
         Name = "Switch Item",
@@ -5398,7 +5440,7 @@ end)();
                                     for _, v in AutoVoidDropData.Settings.Items do
                                         local Item = GetItem(v)
                                         if Item then
-                                            GameData.Utils.Remotes:Get("DropItem"):CallServerAsync({
+                                            GameData.Utils.Remotes.DropItem:InvokeServer({
                                                 item = Item.tool,
                                                 amount = Item.amount
                                             })
@@ -5548,7 +5590,7 @@ end)();
     })
 end)();
 
-(function()
+--[[(function()
     local Hook
     local Old
 
@@ -5581,7 +5623,7 @@ end)();
             end
         end
     })
-end)();
+end)();]]
 
 (function()
     local ChestESP
@@ -5600,11 +5642,11 @@ end)();
 
     local function MainESP(Object)
         local Chest = Object:FindFirstChild("ChestFolderValue") and Object.ChestFolderValue.Value
-        if not Chest then 
+        if not Chest then
             local Start: number = os.clock()
             repeat task.wait() until (Object:FindFirstChild("ChestFolderValue") and Object:FindFirstChild("ChestFolderValue").Value) or (os.clock() - Start) > 120
             Chest = Object:FindFirstChild("ChestFolderValue") and Object.ChestFolderValue.Value
-            
+
             if not Chest then
                 return
             end
@@ -5654,7 +5696,7 @@ end)();
                         break
                     end
                 end
-                
+
                 if not Found[Name] and (Match or table.find(ChestESPData.Settings.Items, Name)) then
                     Found[Name], Billboard.Enabled = true, true
                     local Image = Instance.new("ImageLabel", Billboard.Frame)
@@ -5692,7 +5734,7 @@ end)();
                     pcall(function() v:Disconnect() end)
                 end
                 ChestESPData.Connect = {}
-                
+
                 for _, v in next, ChestESPFolder:GetChildren() do
                     v:Destroy()
                 end
@@ -5758,7 +5800,7 @@ end)();
                                         SwitchItem(Balloons.tool, false, true)
                                     end
 
-                                    GameData.Utils.Remotes:Get("InflateBalloon"):SendToServer()
+                                    GameData.Utils.Remotes.InflateBalloon:FireServer()
                                 end
                             end
                         end
@@ -5906,7 +5948,7 @@ end)();
             Mode = value
         end
     })
-    
+
     BlockIn:MiniToggle({
         Name = "Auto Switch",
         Flag = "BlockInAutoSwitch",
@@ -5964,17 +6006,11 @@ end)();
         Flag = "TrapDisabler",
         CallingFunction = function(self, enabled: boolean)
             if enabled then
-                OldGet = GameData.Utils.Remotes.Get
-                GameData.Utils.Remotes.Get = function(self, Name: string, ...)
-                    if Name == "StepOnSnapTrap" then
-                        return {SendToServer = function() end}
-                    end
-
-                    return OldGet(self, Name, ...)
-                end
+                OldGet = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
+                GameData.Utils.Remotes.StepOnSnapTrap.Parent = nil
             else
                 if OldGet then
-                    GameData.Utils.Remotes.Get = OldGet
+                    GameData.Utils.Remotes.StepOnSnapTrap = OldGet
                 end
             end
         end
