@@ -13,6 +13,7 @@ local HttpService: HttpService = Night.cloneref(game:GetService("HttpService"))
 local StarterGui: StarterGui = Night.cloneref(game:GetService("StarterGui"))
 local Stats: Stats = Night.cloneref(game:GetService("Stats")):FindFirstChild("PerfromanceStats")
 local TextChatService: TextChatService = Night.cloneref(game:GetService("TextChatService"))
+local Teams = Night.cloneref(game:GetService('Teams'))
 
 local LocalPlayer: Player = Players.LocalPlayer
 local PlayerGui: PlayerGui = Night.cloneref(LocalPlayer:WaitForChild("PlayerGui"))
@@ -50,13 +51,187 @@ local GameData = {
             InflateBallon = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.InflateBalloon,
             StepOnSnapTrap = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.StepOnSnapTrap
         },
-        Network = require(LocalPlayer.PlayerScripts.TS.lib.network),
-        DamageTypes = require(ReplicatedStorage.TS.damage["damage-type"]).DamageType,
-        ItemMeta = require(ReplicatedStorage.TS.item["item-meta"]).items,
-        Store = require(LocalPlayer.PlayerScripts.TS.ui.store).ClientStore,
-        InventoryUtil = require(ReplicatedStorage.TS.inventory["inventory-util"]).InventoryUtil,
-        ViewmodelController = Knit.Controllers.ViewmodelController,
-        MatchStates = require(ReplicatedStorage.TS.match["match-state"]).MatchState,
+        Network = loadstring(game:HttpGet("https://raw.githubusercontent.com/sstvskids/NewNightForSolara/refs/heads/main/Games/Bedwars/network.luau"))(),
+        DamageTypes = {
+            DamageType = setmetatable({
+                SWORD = 0,
+                FALL = 1,
+                VOID = 2,
+                TNT = 3,
+                TESLA_TRAP = 4,
+                PROJECTILE = 5,
+                WIZARD_ORB = 6,
+                FLAMETHROWER = 7,
+                POISON = 8,
+                INFECTED_POISON = 9,
+                ANGEL_DAMAGE = 10,
+                MISC = 11,
+                STATIC = 12,
+                VOID_ENCHANT = 13,
+                BURN = 14,
+                VOID_AXE_SLASH = 15,
+                PAINT_BLAST = 16,
+                ACID_RAIN = 17,
+                INVISIBLE_LANDMINE = 18,
+                MAGMA_BLOCK = 19,
+                MAX_HP_REDUCE = 20,
+                WIND = 21,
+                TENNIS_BALL = 22,
+                FROZEN = 23,
+                SPIRIT_ASSASSIN_SLASH = 24,
+                DASHER_DASH = 25,
+                PUMPKIN_BOMB = 26,
+                REFLECT = 27,
+                EXECUTE = 28,
+                JUGGERNAUT_ULT = 29,
+                MINIGAME_DAMAGE = 30,
+                SNOWBOARDING_MINIGAME_AVALANCHE = 31,
+                WINTER_BOSS_DAMAGE = 32,
+                HOT_POTATO = 33,
+                BLEED = 34,
+                EASTER_EGG = 35,
+                SNOWBALL = 36,
+                GUNPOWDER_BARREL = 37,
+                NO_APPLY_ENCHANT = 38,
+                EXPLOSIVE_TOOL_ENCHANT = 39,
+                RADIATION = 40,
+                WARLOCK = 41,
+                WITCHCRAFT = 42,
+                VAMPIRE_DRAIN = 43,
+                COMET = 44,
+                FROST_BITE = 45,
+                SEAHORSE = 46,
+                STYX_GHOST_DEATH = 47,
+                SUFFOCATE = 48,
+                LASSO = 49,
+                CLUSTER_BOMB = 50,
+                DRAGON_SUMMON = 51,
+                PVP_ARENA_DAMAGE = 52,
+                LIFE_ARROW = 53,
+                SELF_INFLICTED = 54,
+                POGO_STICK = 55,
+                BATTLE_ROYALE_STORM = 56,
+                PICKAXE = 57,
+                DEATH_ADDER_HALLOWEEN = 58,
+                SPIDER_QUEEN_BOSS = 59,
+                VOID_TITANS_BLESSING = 60,
+                VOID_HUNTER_DETONATE = 61,
+                VOID_WALKER_WARP = 62,
+                ARES_SPEAR = 63,
+                ZOMBIE_DISCHARGE_LIGHTNING = 64,
+                JELLYFISH_ZAP = 65,
+                GATHER_BOT_ZAP = 66,
+                WIZARD_LIGHTNING_STRIKE = 67,
+                SCARAB = 68,
+                BOMBER_PENGUIN = 69,
+                HAND_GUN = 70,
+                CUSTOM_KIT_ABILITY = 71,
+                SAND_TORNADO = 72,
+                EXPLODING_TANK = 73,
+                SKELETON_KIT_REVIVE_STATE_DEATH = 74,
+                SKELETON_KIT_POISON = 75,
+                SPIDERLING = 76
+            }, {
+                __index = {
+                    [0]  = 'SWORD',
+                    [1]  = 'FALL',
+                    [2]  = 'VOID',
+                    [3]  = 'TNT',
+                    [4]  = 'TESLA_TRAP',
+                    [5]  = 'PROJECTILE',
+                    [6]  = 'WIZARD_ORB',
+                    [7]  = 'FLAMETHROWER',
+                    [8]  = 'POISON',
+                    [9]  = 'INFECTED_POISON',
+                    [10] = 'ANGEL_DAMAGE',
+                    [11] = 'MISC',
+                    [12] = 'STATIC',
+                    [13] = 'VOID_ENCHANT',
+                    [14] = 'BURN',
+                    [15] = 'VOID_AXE_SLASH',
+                    [16] = 'PAINT_BLAST',
+                    [17] = 'ACID_RAIN',
+                    [18] = 'INVISIBLE_LANDMINE',
+                    [19] = 'MAGMA_BLOCK',
+                    [20] = 'MAX_HP_REDUCE',
+                    [21] = 'WIND',
+                    [22] = 'TENNIS_BALL',
+                    [23] = 'FROZEN',
+                    [24] = 'SPIRIT_ASSASSIN_SLASH',
+                    [25] = 'DASHER_DASH',
+                    [26] = 'PUMPKIN_BOMB',
+                    [27] = 'REFLECT',
+                    [28] = 'EXECUTE',
+                    [29] = 'JUGGERNAUT_ULT',
+                    [30] = 'MINIGAME_DAMAGE',
+                    [31] = 'SNOWBOARDING_MINIGAME_AVALANCHE',
+                    [32] = 'WINTER_BOSS_DAMAGE',
+                    [33] = 'HOT_POTATO',
+                    [34] = 'BLEED',
+                    [35] = 'EASTER_EGG',
+                    [36] = 'SNOWBALL',
+                    [37] = 'GUNPOWDER_BARREL',
+                    [38] = 'NO_APPLY_ENCHANT',
+                    [39] = 'EXPLOSIVE_TOOL_ENCHANT',
+                    [40] = 'RADIATION',
+                    [41] = 'WARLOCK',
+                    [42] = 'WITCHCRAFT',
+                    [43] = 'VAMPIRE_DRAIN',
+                    [44] = 'COMET',
+                    [45] = 'FROST_BITE',
+                    [46] = 'SEAHORSE',
+                    [47] = 'STYX_GHOST_DEATH',
+                    [48] = 'SUFFOCATE',
+                    [49] = 'LASSO',
+                    [50] = 'CLUSTER_BOMB',
+                    [51] = 'DRAGON_SUMMON',
+                    [52] = 'PVP_ARENA_DAMAGE',
+                    [53] = 'LIFE_ARROW',
+                    [54] = 'SELF_INFLICTED',
+                    [55] = 'POGO_STICK',
+                    [56] = 'BATTLE_ROYALE_STORM',
+                    [57] = 'PICKAXE',
+                    [58] = 'DEATH_ADDER_HALLOWEEN',
+                    [59] = 'SPIDER_QUEEN_BOSS',
+                    [60] = 'VOID_TITANS_BLESSING',
+                    [61] = 'VOID_HUNTER_DETONATE',
+                    [62] = 'VOID_WALKER_WARP',
+                    [63] = 'ARES_SPEAR',
+                    [64] = 'ZOMBIE_DISCHARGE_LIGHTNING',
+                    [65] = 'JELLYFISH_ZAP',
+                    [66] = 'GATHER_BOT_ZAP',
+                    [67] = 'WIZARD_LIGHTNING_STRIKE',
+                    [68] = 'SCARAB',
+                    [69] = 'BOMBER_PENGUIN',
+                    [70] = 'HAND_GUN',
+                    [71] = 'CUSTOM_KIT_ABILITY',
+                    [72] = 'SAND_TORNADO',
+                    [73] = 'EXPLODING_TANK',
+                    [74] = 'SKELETON_KIT_REVIVE_STATE_DEATH',
+                    [75] = 'SKELETON_KIT_POISON',
+                    [76] = 'SPIDERLING',
+                }
+            })
+        },
+        ItemMeta = loadstring(game:HttpGet("https://raw.githubusercontent.com/sstvskids/NewNightForSolara/refs/heads/main/Games/Bedwars/itemmeta.luau"))(),
+        Store = {
+            matchState = 1,
+            queue_type = workspace:GetAttribute('QueueType'),
+            teams = {}
+        },
+        InventoryUtil = {}, --require(ReplicatedStorage.TS.inventory["inventory-util"]).InventoryUtil,
+        ViewmodelController = {}, --Knit.Controllers.ViewmodelController,
+        MatchStates = setmetatable({
+            PRE = 0,
+            RUNNING = 1,
+            POST = 2
+        }, {
+            __index = {
+                [0] = 'PRE',
+                [1] = 'RUNNING',
+                [2] = 'POST'
+            }
+        }),
         Animation = require(ReplicatedStorage.rbxts_include.node_modules["@easy-games"]["game-core"].out).AnimationUtil,
         AnimationType = require(ReplicatedStorage.TS.animation["animation-type"]).AnimationType,
         ProdAnimations = require(ReplicatedStorage.TS.animation.definitions["prod-animations"]).ProdAnimations,
@@ -66,6 +241,8 @@ local GameData = {
         TeamController = Knit.Controllers.TeamController,
         Sprint = {
             sprinting = LocalPlayer:GetAttribute('Sprinting'),
+            blockSprint = false,
+            moveSpeedMultiplier = 1,
             isSprinting = function(self)
                 return self.sprinting
             end,
@@ -75,12 +252,24 @@ local GameData = {
 
                 LocalPlayer:SetAttribute('Sprinting', true)
                 LocalPlayer.Character.Humanoid.WalkSpeed = LocalPlayer.Character.Humanoid.WalkSpeed >= 20 and math.min(LocalPlayer.Character.Humanoid.WalkSpeed, 20) or 20
+                TweenService:Create(workspace.CurrentCamera, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {FieldOfView = workspace.CurrentCamera.FieldOfView * 1.1})
 
                 return
             end,
             stopSprinting = function(self)
                 LocalPlayer:SetAttribute('Sprinting', false)
                 LocalPlayer.Character.Humanoid.WalkSpeed = 14
+                TweenService:Create(workspace.CurrentCamera, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {FieldOfView = workspace.CurrentCamera.FieldOfView / 1.1})
+
+                return
+            end,
+            getMovementStatusModifier = function(self)
+                return {
+                    modifiers = {
+                        moveSpeedMultiplier = self.moveSpeedMultiplier
+                    },
+                    addModifier = function() end
+                }
             end
         },
         Knockback = require(ReplicatedStorage.TS.damage["knockback-util"]).KnockbackUtil,
@@ -116,6 +305,20 @@ local GameData = {
     }
 }
 
+for i,v in teams:GetTeams() do
+    if i == 1 then continue end
+
+    GameData.Utils.Store.teams[v.Name] = {
+        id = i - 1
+    }
+end
+
+task.spawn(function()
+    repeat task.wait() until LocalPlayer.PlayerGui:FindFirstChild('MatchEndBackground')
+
+    GameData.Utils.Store.matchState = 2
+end)
+
 local Materials = {}
 for _, Material in next, Enum.Material:GetEnumItems() do
     table.insert(Materials, Material.Name)
@@ -144,7 +347,7 @@ Assets.Connections:Add(GameData.Utils.Network.EntityDamageEventZap.On(function(.
         Damaged = Data[1],
         DamagedPlayer = Players:GetPlayerFromCharacter(Data[1]),
         Damage = Data[2],
-        Type = {Value = GameData.Utils.DamageTypes[Data[3]], Number = Data[3]},
+        Type = {Value = GameData.Utils.DamageTypes.DamageType[Data[3]], Number = Data[3]},
         Damager = Data[5],
         DamagerPlayer = Players:GetPlayerFromCharacter(Data[5])
     })
@@ -1499,7 +1702,7 @@ end)();
                     end
 
                     local Sword = GetSword()
-                    if Sword.Item and GameData.Utils.Store:getState().Game.matchState == GameData.Utils.MatchStates.RUNNING and Night:IsAlive(LocalPlayer) then
+                    if Sword.Item and GameData.Utils.Store.matchState == GameData.Utils.MatchStates.RUNNING and Night:IsAlive(LocalPlayer) then
                         if KillAuraData.Settings.TriggerButton and not KillAuraData.Data.TriggerHeld then
                             task.wait()
                             return
@@ -4196,7 +4399,7 @@ end)();
         Flag = "AntiHit",
         CallingFunction = function(self, enabled: boolean)
             if enabled then
-                repeat task.wait() until GameData.Utils.Store:getState().Game.matchstate ~= 0
+                repeat task.wait() until GameData.Utils.Store.matchState ~= 0
 
                 self:Connection(GameData.Events.Damage.Event:Connect(function(Data)
                     if AntiHitData.Data.Target and Data.Damaged == AntiHitData.Data.Target then
@@ -4231,7 +4434,7 @@ end)();
                         continue
                     end
 
-                    if Night:IsAlive(LocalPlayer) and NearestEntity.Entity and GameData.Utils.Store:getState().Game.matchState == GameData.Utils.MatchStates.RUNNING then
+                    if Night:IsAlive(LocalPlayer) and NearestEntity.Entity and GameData.Utils.Store.matchState == GameData.Utils.MatchStates.RUNNING then
                         if not AntiHitData.Data.Clone then
                             AntiHitData.Data.Clone = MakeClone()
                         end
@@ -4499,10 +4702,6 @@ end)();
             return false
         end
 
-        if GameData.Utils.Store and GameData.Utils.Store:getState().Game.customMatch then
-            return false
-        end
-
         local Friend: string = FindMutual(GetFriends(player.UserId))
 
         if not Friend then
@@ -4708,14 +4907,14 @@ end)();
                 self:Connection(GameData.Events.Death.Event:Connect(function(Values)
                     if not Sent and Values.Final and Values.KilledPlayer and Values.KilledPlayer == LocalPlayer then
                         Sent = true
-                        task.delay(Delay, GameData.Utils.QueueController.joinQueue, GameData.Utils.QueueController, GameData.Utils.Store:getState().Game.queueType)
+                        task.delay(Delay, GameData.Utils.QueueController.joinQueue, GameData.Utils.QueueController, GameData.Utils.Store.queue_type)
                     end
                 end))
 
                 self:Connection(GameData.Events.MatchEnd.Event:Connect(function()
                     if not Sent then
                         Sent = true
-                        task.delay(Delay, GameData.Utils.QueueController.joinQueue, GameData.Utils.QueueController, GameData.Utils.Store:getState().Game.queueType)
+                        task.delay(Delay, GameData.Utils.QueueController.joinQueue, GameData.Utils.QueueController, GameData.Utils.Store.queue_type)
                     end
                 end))
             end
@@ -5310,7 +5509,7 @@ end)();
                 end))
 
                 self:Connection(GameData.Events.MatchEnd.Event:Connect(function(Value)
-                    if AutoToxicData.Win and Value.TeamID == GameData.Utils.Store:getState().Game.myTeam.id then
+                    if AutoToxicData.Win and Value.TeamID == GameData.Utils.Store.teams[LocalPlayer.Team.Name] then
                         TextChatService.TextChannels.RBXGeneral:SendAsync(GetRandomMessage("Win", {}))
                     end
                 end))
@@ -5424,7 +5623,7 @@ end)();
         Flag = "AutoVoidDrop",
         CallingFunction = function(self, enabled: boolean)
             if enabled then
-                repeat task.wait() until GameData.Utils.Store:getState().Game.matchstate ~= 0
+                repeat task.wait() until GameData.Utils.Store.matchState ~= 0
 
                 local function VoidDrop()
                     if AutoVoidDropData.Other.Loop then
@@ -5723,7 +5922,7 @@ end)();]]
         Flag = "ChestESP",
         CallingFunction = function(self, enabled: boolean)
             if enabled then
-                repeat task.wait() until GameData.Utils.Store:getState().Game.matchstate ~= 0
+                repeat task.wait() until GameData.Utils.Store.matchState ~= 0
 
                 table.insert(ChestESPData.Connect, CollectionService:GetInstanceAddedSignal("chest"):Connect(MainESP))
                 for _, Chest in CollectionService:GetTagged("chest") do
