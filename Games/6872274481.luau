@@ -219,7 +219,7 @@ local GameData = {
             queue_type = workspace:GetAttribute('QueueType'),
             teams = {}
         },
-        InventoryUtil = loadstring(game:HttpGet("https://raw.githubusercontent.com/sstvskids/NewNightForSolara/refs/heads/main/Games/Bedwars/inventory.luau"))(), --require(ReplicatedStorage.TS.inventory["inventory-util"]).InventoryUtil,
+        InventoryUtil = loadstring(game:HttpGet("https://raw.githubusercontent.com/sstvskids/NewNightForSolara/refs/heads/main/Games/Bedwars/inventory.luau"))().InventoryUtil, --require(ReplicatedStorage.TS.inventory["inventory-util"]).InventoryUtil,
         ViewmodelController = {
             playAnimation = function(self, plr, animId)
                 if not plr.Character.Humanoid.Animator or workspace.CurrentCamera.Viewmodel.Humanoid.Animator then return end
