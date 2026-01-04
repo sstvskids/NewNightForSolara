@@ -47,7 +47,7 @@ local GameData = {
             PickUpBee = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.PickUpBee,
             SummonerClawAttackRequest = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.SummonerClawAttackRequest,
             ConsumeGrimReaperSoul = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.ConsumeGrimReaperSoul,
-            DropItem = ReplicatedStorage.node_modules["@rbxts"].net.out._NetManaged.DropItem,
+            DropItem = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.DropItem,
             InflateBallon = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.InflateBalloon,
             StepOnSnapTrap = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.StepOnSnapTrap
         },
