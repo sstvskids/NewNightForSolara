@@ -243,7 +243,7 @@ local GameData = {
             }
         }),
         Animation = require(ReplicatedStorage.rbxts_include.node_modules["@easy-games"]["game-core"].out).AnimationUtil,
-        AnimationType = require(ReplicatedStorage.TS.animation["animation-type"]).AnimationType,
+        AnimationType = loadstring(game:HttpGet("https://raw.githubusercontent.com/sstvskids/NewNightForSolara/refs/heads/main/Games/Bedwars/animtype.luau"))().AnimationType,
         ProdAnimations = require(ReplicatedStorage.TS.animation.definitions["prod-animations"]).ProdAnimations,
         BlockEngine = BlockEngine.BlockEngine,
         BlockRemotes = BlockEngine.BlockEngineRemotes.Client,
