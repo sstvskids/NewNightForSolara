@@ -219,8 +219,18 @@ local GameData = {
             queue_type = workspace:GetAttribute('QueueType'),
             teams = {}
         },
-        InventoryUtil = {}, --require(ReplicatedStorage.TS.inventory["inventory-util"]).InventoryUtil,
-        ViewmodelController = {}, --Knit.Controllers.ViewmodelController,
+        InventoryUtil = loadstring(game:HttpGet("https://raw.githubusercontent.com/sstvskids/NewNightForSolara/refs/heads/main/Games/Bedwars/inventory.luau"))(), --require(ReplicatedStorage.TS.inventory["inventory-util"]).InventoryUtil,
+        ViewmodelController = {
+            playAnimation = function(self, plr, animId)
+                if not plr.Character.Humanoid.Animator or workspace.CurrentCamera.Viewmodel.Humanoid.Animator then return end
+
+                local anim1 = workspace.CurrentCamera.Viewmodel.Humanoid.Animator:LoadAnimation(animId)
+                anim1:Play()
+
+                local anim2 = plr.Character.Humanoid.Animator:LoadAnimation(animId)
+                anim2:Play()
+            end
+        }, --Knit.Controllers.ViewmodelController,
         MatchStates = setmetatable({
             PRE = 0,
             RUNNING = 1,
