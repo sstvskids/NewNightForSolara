@@ -31,7 +31,7 @@ local GameData = {
             EntityDeathEvent = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.EntityDeathEvent,
             BedwarsBedBreak = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.BedwarsBedBreak,
             MatchEndEvent = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.MatchEndEvent,
-            AFKInfo = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.AFKInfo,
+            AFKInfo = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.AfkInfo,
             SetInvItem = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.SetInvItem,
             SwordHit = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.SwordHit,
             ConsumeItem = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.ConsumeItem,
@@ -230,7 +230,7 @@ local GameData = {
                 local anim2 = plr.Character.Humanoid.Animator:LoadAnimation(animId)
                 anim2:Play()
             end
-        }, --Knit.Controllers.ViewmodelController,
+        }
         MatchStates = setmetatable({
             PRE = 0,
             RUNNING = 1,
