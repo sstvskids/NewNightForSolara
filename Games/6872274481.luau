@@ -230,7 +230,7 @@ local GameData = {
                 local anim2 = plr.Character.Humanoid.Animator:LoadAnimation(animId)
                 anim2:Play()
             end
-        }
+        },
         MatchStates = setmetatable({
             PRE = 0,
             RUNNING = 1,
