@@ -213,7 +213,7 @@ local GameData = {
                 }
             })
         },
-        ItemMeta = loadstring(game:HttpGet("https://raw.githubusercontent.com/sstvskids/NewNightForSolara/refs/heads/main/Games/Bedwars/itemmeta.luau"))(),
+        ItemMeta = loadstring(game:HttpGet("https://raw.githubusercontent.com/sstvskids/NewNightForSolara/refs/heads/main/Games/Bedwars/itemmeta.luau"))().items,
         Store = {
             matchState = 1,
             queue_type = workspace:GetAttribute('QueueType'),
